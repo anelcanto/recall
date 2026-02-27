@@ -52,9 +52,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          uv run bump-my-version bump ${{ steps.bump.outputs.bump }}
+          uv run --frozen bump-my-version bump ${{ steps.bump.outputs.bump }}
+          NEW_TAG=$(git describe --tags --abbrev=0)
+          uv lock
+          git add uv.lock
+          git commit --amend --no-edit
+          git tag -f "$NEW_TAG" -m "Release $NEW_TAG"
           git push origin main --follow-tags
-          echo "new_tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Trigger publish workflow
         if: steps.tag.outputs.new_tag != ''
