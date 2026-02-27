@@ -12,13 +12,5 @@
       "type": "stdio",
       "command": "recall-mcp"
     }
-  },
-  "hooks": "${CLAUDE_PLUGIN_ROOT}/hooks/hooks.json",
-  "skills": [
-    "${CLAUDE_PLUGIN_ROOT}/skills/memory-management/SKILL.md"
-  ],
-  "commands": [
-    "${CLAUDE_PLUGIN_ROOT}/commands/save.md",
-    "${CLAUDE_PLUGIN_ROOT}/commands/update.md"
-  ]
+  }
 }
