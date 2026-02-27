@@ -55,6 +55,7 @@ tag = true
 commit_message = "chore: bump version to {new_version}"
 tag_name = "v{new_version}"
 tag_message = "Release v{new_version}"
+pre_commit_hooks = ["uv lock", "git add uv.lock"]
 
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
