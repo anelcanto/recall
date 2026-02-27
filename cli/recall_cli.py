@@ -52,8 +52,7 @@ def _handle_error(resp: httpx.Response, api_url: str) -> None:
 
 def _connection_error(url: str) -> None:
     console.print(
-        f"[red]Cannot reach recall service at {url}.[/red]\n"
-        f"Try: [bold]recall serve[/bold]"
+        f"[red]Cannot reach recall service at {url}.[/red]\nTry: [bold]recall serve[/bold]"
     )
     raise typer.Exit(1)
 
@@ -81,7 +80,8 @@ def _ensure_qdrant_container() -> None:
     try:
         result = subprocess.run(
             ["docker", "inspect", "--format", "{{.State.Status}}", "qdrant"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         state = result.stdout.strip()
         if state == "running":
@@ -98,10 +98,17 @@ def _ensure_qdrant_container() -> None:
     console.print("Creating and starting Qdrant container...")
     subprocess.run(
         [
-            "docker", "run", "-d", "--name", "qdrant",
-            "-p", "127.0.0.1:6333:6333",
-            "-p", "127.0.0.1:6334:6334",
-            "-v", "qdrant_data:/qdrant/storage",
+            "docker",
+            "run",
+            "-d",
+            "--name",
+            "qdrant",
+            "-p",
+            "127.0.0.1:6333:6333",
+            "-p",
+            "127.0.0.1:6334:6334",
+            "-v",
+            "qdrant_data:/qdrant/storage",
             "qdrant/qdrant:v1.13.2",
         ],
         check=True,
@@ -132,7 +139,9 @@ def init() -> None:
         console.print("Ollama found. Pulling nomic-embed-text...")
         result = subprocess.run(["ollama", "pull", "nomic-embed-text"])
         if result.returncode != 0:
-            console.print("[yellow]Warning: could not pull model. Make sure Ollama is running.[/yellow]")
+            console.print(
+                "[yellow]Warning: could not pull model. Make sure Ollama is running.[/yellow]"
+            )
     else:
         console.print("[yellow]Ollama not found. Install it: brew install ollama[/yellow]")
         console.print("[yellow]Then run: ollama pull nomic-embed-text[/yellow]")
@@ -142,8 +151,12 @@ def init() -> None:
     try:
         subprocess.run(["docker", "info"], capture_output=True, check=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
-        console.print("[yellow]Docker daemon not running or Docker not installed. Start Docker Desktop first.[/yellow]")
-        console.print("\n[green]Setup complete![/green] Start Qdrant and the API when Docker is ready:")
+        console.print(
+            "[yellow]Docker daemon not running or Docker not installed. Start Docker Desktop first.[/yellow]"
+        )
+        console.print(
+            "\n[green]Setup complete![/green] Start Qdrant and the API when Docker is ready:"
+        )
         console.print("  [bold]recall serve[/bold]")
         return
 
@@ -157,7 +170,9 @@ def init() -> None:
 @app.command()
 def serve(
     host: Optional[str] = typer.Option(None, "--host", help="Bind host (default: from settings)"),
-    port: Optional[int] = typer.Option(None, "--port", "-p", help="Bind port (default: from settings)"),
+    port: Optional[int] = typer.Option(
+        None, "--port", "-p", help="Bind port (default: from settings)"
+    ),
     no_qdrant: bool = typer.Option(False, "--no-qdrant", help="Skip starting Qdrant container"),
 ) -> None:
     """Start the recall API server (and Qdrant if Docker is available)."""
@@ -169,8 +184,9 @@ def serve(
             console.print("[yellow]Docker not available — skipping Qdrant container.[/yellow]")
 
     # Lazy import so that Settings are only parsed when `serve` is called
-    from memory_api.config import settings  # noqa: PLC0415
     import uvicorn  # noqa: PLC0415
+
+    from memory_api.config import settings  # noqa: PLC0415
 
     bind_host = host or settings.api_host
     bind_port = port or settings.api_port
@@ -203,7 +219,9 @@ def add(
 
     _handle_error(resp, url)
     data = resp.json()
-    console.print(f"[green]Stored[/green] id=[bold]{data['id']}[/bold] strategy={data['id_strategy']}")
+    console.print(
+        f"[green]Stored[/green] id=[bold]{data['id']}[/bold] strategy={data['id_strategy']}"
+    )
 
 
 @app.command()
@@ -296,9 +314,7 @@ def ingest(
     if auto_dedupe:
         for item in items:
             src = item.get("source", source)
-            item["dedupe_key"] = hashlib.sha256(
-                (item["text"] + src).encode()
-            ).hexdigest()
+            item["dedupe_key"] = hashlib.sha256((item["text"] + src).encode()).hexdigest()
 
     batch_size = 100
     total_succeeded = 0
@@ -422,7 +438,13 @@ def status(
         _connection_error(url)
 
     data = resp.json()
-    color = "green" if data.get("status") == "ok" else "yellow" if data.get("status") == "degraded" else "red"
+    color = (
+        "green"
+        if data.get("status") == "ok"
+        else "yellow"
+        if data.get("status") == "degraded"
+        else "red"
+    )
     console.print(f"[{color}]Status:[/{color}] {data.get('status')}")
     console.print(f"  Qdrant: {data.get('qdrant')}")
     console.print(f"  Ollama: {data.get('ollama')}")

@@ -7,6 +7,7 @@ Config resolution (in priority order):
   2. ~/.recall/.env file (loaded via python-dotenv)
   3. Defaults: http://127.0.0.1:8100, no token
 """
+
 from __future__ import annotations
 
 import os
@@ -15,13 +16,7 @@ from typing import Optional
 
 import httpx
 from dotenv import load_dotenv
-from importlib.metadata import version as _pkg_version, PackageNotFoundError
 from mcp.server.fastmcp import FastMCP
-
-try:
-    _VERSION = _pkg_version("recall-cli")
-except PackageNotFoundError:
-    _VERSION = "0.0.0"  # running from source without install
 
 # ---------------------------------------------------------------------------
 # Config
@@ -52,7 +47,6 @@ def _client() -> httpx.Client:
 
 mcp = FastMCP(
     "recall",
-    version=_VERSION,
     instructions=(
         "Use these tools to persist and retrieve memories across Claude sessions. "
         "Search before answering questions about the user's projects or preferences. "
@@ -159,8 +153,10 @@ def check_health() -> dict:
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     import sys
+
     if "--http" in sys.argv:
         port = int(os.environ.get("RECALL_MCP_PORT", "8001"))
         mcp.run(transport="http", port=port)

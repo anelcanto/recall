@@ -1,17 +1,16 @@
 """Unit tests — no services required."""
+
 from __future__ import annotations
 
 import base64
 import hashlib
 import hmac
 import json
-import os
 import uuid
 
 import pytest
 
 # ---- Validation ----
-
 from memory_api.models import IngestRequest, MemoryCreate, SearchRequest
 
 MAX_TEXT = 8000
@@ -48,12 +47,14 @@ class TestValidation:
 
     def test_batch_max(self):
         from memory_api.models import IngestItem
+
         items = [IngestItem(text="t") for _ in range(100)]
         req = IngestRequest(items=items)
         assert len(req.items) == 100
 
     def test_batch_over_limit(self):
         from memory_api.models import IngestItem
+
         items = [IngestItem(text="t") for _ in range(101)]
         with pytest.raises(Exception, match="batch size exceeds"):
             IngestRequest(items=items)
@@ -177,9 +178,11 @@ class TestCursor:
 
 # ---- Config precedence ----
 
+
 class TestConfigPrecedence:
     def test_env_default(self):
         from memory_api.config import Settings
+
         s = Settings()
         assert s.qdrant_host == "localhost"
         assert s.api_port == 8100
@@ -190,6 +193,7 @@ class TestConfigPrecedence:
         monkeypatch.setenv("QDRANT_HOST", "myhost")
         monkeypatch.setenv("API_PORT", "9999")
         from memory_api.config import Settings
+
         s = Settings()
         assert s.qdrant_host == "myhost"
         assert s.api_port == 9999

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -80,7 +80,7 @@ class IngestItem(BaseModel):
             raise ValueError("too many tags (max 20)")
         for tag in v:
             if len(tag) > 100:
-                raise ValueError(f"tag exceeds 100 characters")
+                raise ValueError("tag exceeds 100 characters")
         return v
 
 
@@ -91,9 +91,7 @@ class IngestRequest(BaseModel):
     @classmethod
     def items_max_batch(cls, v: list[IngestItem]) -> list[IngestItem]:
         if len(v) > settings.max_batch_size:
-            raise ValueError(
-                f"batch size exceeds maximum of {settings.max_batch_size}"
-            )
+            raise ValueError(f"batch size exceeds maximum of {settings.max_batch_size}")
         return v
 
 

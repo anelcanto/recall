@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import secrets
 import sys
 from contextlib import asynccontextmanager
@@ -18,17 +17,10 @@ from memory_api.auth import require_auth
 from memory_api.config import settings
 from memory_api.embeddings import EmbeddingUnavailable, OllamaClient
 from memory_api.models import (
-    DeleteResponse,
     HealthResponse,
-    IngestError,
     IngestRequest,
-    IngestResponse,
-    ListResponse,
     MemoryCreate,
-    MemoryCreateResponse,
-    MemoryRecord,
     SearchRequest,
-    SearchResponse,
 )
 from memory_api.store import (
     MemoryStore,
@@ -81,7 +73,9 @@ async def lifespan(app: FastAPI):
     # Startup checks — warn but never crash (except model mismatch)
     try:
         collection_exists = await _store.collection_exists()
-        logger.info("Qdrant is up. Collection '%s' exists: %s", settings.collection_name, collection_exists)
+        logger.info(
+            "Qdrant is up. Collection '%s' exists: %s", settings.collection_name, collection_exists
+        )
 
         if collection_exists:
             try:
@@ -112,6 +106,7 @@ app = FastAPI(title="Personal Memory API", lifespan=lifespan)
 
 
 # --- Global exception handlers ---
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -168,6 +163,7 @@ async def generic_exception_handler(request: Request, exc: Exception):
 
 # --- Health ---
 
+
 @app.get("/health", response_model=HealthResponse)
 async def health(store: MemoryStore = Depends(get_store)):
     timeout = settings.health_check_timeout_s
@@ -202,6 +198,7 @@ async def health(store: MemoryStore = Depends(get_store)):
 
 # --- Store memory ---
 
+
 @app.post("/memory", dependencies=[Depends(require_auth)])
 async def create_memory(
     body: MemoryCreate,
@@ -223,6 +220,7 @@ async def create_memory(
 
 # --- Search ---
 
+
 @app.post("/search", dependencies=[Depends(require_auth)])
 async def search_memories(
     body: SearchRequest,
@@ -237,6 +235,7 @@ async def search_memories(
 
 
 # --- Ingest ---
+
 
 @app.post("/ingest", dependencies=[Depends(require_auth)])
 async def ingest_memories(
@@ -282,6 +281,7 @@ async def ingest_memories(
 
 # --- List ---
 
+
 @app.get("/memories", dependencies=[Depends(require_auth)])
 async def list_memories(
     limit: int = Query(default=20, ge=1, le=100),
@@ -300,6 +300,7 @@ async def list_memories(
 
 
 # --- Delete ---
+
 
 @app.delete("/memory/{memory_id}", dependencies=[Depends(require_auth)])
 async def delete_memory(

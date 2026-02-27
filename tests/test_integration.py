@@ -1,17 +1,15 @@
 """Integration tests — requires Qdrant + Ollama running."""
+
 from __future__ import annotations
 
-import asyncio
 import base64
-import hashlib
 import json
 import uuid
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import httpx
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
 
 # We override collection name per test via unique fixture
 QDRANT_HOST = "localhost"
@@ -80,8 +78,9 @@ def sync_client(unique_collection):
 
     importlib.reload(main_mod)
 
-    from memory_api.main import app
     from starlette.testclient import TestClient as StarletteClient
+
+    from memory_api.main import app
 
     with StarletteClient(app=app, raise_server_exceptions=False) as client:
         yield client
@@ -234,7 +233,9 @@ class TestSizeLimits:
 class TestIncludeText:
     def test_include_text_false(self, sync_client):
         add_memory(sync_client, "Secret text here")
-        resp = sync_client.post("/search", json={"query": "secret", "top_k": 5, "include_text": False})
+        resp = sync_client.post(
+            "/search", json={"query": "secret", "top_k": 5, "include_text": False}
+        )
         assert resp.status_code == 200
         for r in resp.json()["results"]:
             assert "text" not in r or r["text"] is None
@@ -278,8 +279,9 @@ class TestAuth:
 
         importlib.reload(main_mod)
 
-        from memory_api.main import app
         from starlette.testclient import TestClient
+
+        from memory_api.main import app
 
         with TestClient(app=app, raise_server_exceptions=False) as client:
             # Without token → 401
