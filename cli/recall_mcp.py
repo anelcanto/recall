@@ -153,7 +153,12 @@ def check_health() -> dict:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    mcp.run(transport="stdio")
+    import sys
+    if "--http" in sys.argv:
+        port = int(os.environ.get("RECALL_MCP_PORT", "8001"))
+        mcp.run(transport="http", port=port)
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":

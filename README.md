@@ -107,20 +107,24 @@ User config lives in `~/.recall/.env`. Qdrant data persists in a Docker volume.
 
 recall ships as a Claude Code plugin — Claude can store and search your memories directly during conversations, with no manual CLI commands needed.
 
-### Install
+### Install via Claude Code plugin marketplace (recommended)
+
+```
+/plugin marketplace add anelcanto/recall
+/plugin install recall@recall
+```
+
+That's it. Claude Code handles everything else.
+
+### Install manually (MCP only)
+
+If you prefer to wire up just the MCP server without the plugin system:
 
 ```bash
 pip install recall-cli
 ```
 
-Then add the plugin to your Claude Code project:
-
-```bash
-# From the recall repo directory (or any project where you want recall available)
-claude mcp add recall -- recall-mcp
-```
-
-Or add it manually to `.mcp.json` at your project root:
+Then add it to `.mcp.json` at your project root:
 
 ```json
 {

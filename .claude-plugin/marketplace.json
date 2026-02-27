@@ -1,0 +1,30 @@
+{
+  "name": "recall",
+  "owner": {
+    "name": "Anel Canto",
+    "email": "contact@anelcanto.com"
+  },
+  "metadata": {
+    "description": "Personal semantic memory for Claude — store, search, and recall information across sessions using local vector embeddings"
+  },
+  "plugins": [
+    {
+      "name": "recall",
+      "source": {
+        "source": "github",
+        "repo": "anelcanto/recall"
+      },
+      "description": "Personal semantic memory for Claude — store, search, and recall information across sessions",
+      "version": "0.2.0",
+      "author": {
+        "name": "Anel Canto",
+        "email": "contact@anelcanto.com"
+      },
+      "homepage": "https://github.com/anelcanto/recall",
+      "repository": "https://github.com/anelcanto/recall",
+      "license": "MIT",
+      "keywords": ["memory", "semantic-search", "qdrant", "ollama", "mcp"],
+      "category": "productivity"
+    }
+  ]
+}
