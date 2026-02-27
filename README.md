@@ -175,7 +175,13 @@ Once connected, just talk to Claude naturally:
 
 ### Check for updates
 
-Use the `/recall:update` command in Claude Code to check for a newer version on PyPI and upgrade.
+From the terminal:
+
+```bash
+claude plugin update recall
+```
+
+Or from inside Claude Code, use the `/recall:update` command to check for a newer version on PyPI and upgrade.
 
 ### Configuration
 
