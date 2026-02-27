@@ -19,26 +19,26 @@ if [ ${#missing[@]} -gt 0 ]; then
     exit 1
 fi
 
-echo "[1/5] Setting up ~/.memories/ config directory..."
-mkdir -p ~/.memories
+echo "[1/5] Setting up ~/.recall/ config directory..."
+mkdir -p ~/.recall
 
-if [ -f ~/.memories/.env ]; then
+if [ -f ~/.recall/.env ]; then
     echo "  .env already exists, skipping."
 else
-    cp .env.example ~/.memories/.env
+    cp .env.example ~/.recall/.env
 
     read -rp "API port [8100]: " port
     port=${port:-8100}
-    sed -i '' "s/API_PORT=8100/API_PORT=$port/" ~/.memories/.env 2>/dev/null || \
-        sed -i "s/API_PORT=8100/API_PORT=$port/" ~/.memories/.env
+    sed -i '' "s/API_PORT=8100/API_PORT=$port/" ~/.recall/.env 2>/dev/null || \
+        sed -i "s/API_PORT=8100/API_PORT=$port/" ~/.recall/.env
 
     read -rp "API auth token (leave empty for no auth): " auth_token
     if [ -n "$auth_token" ]; then
-        sed -i '' "s/API_AUTH_TOKEN=/API_AUTH_TOKEN=$auth_token/" ~/.memories/.env 2>/dev/null || \
-            sed -i "s/API_AUTH_TOKEN=/API_AUTH_TOKEN=$auth_token/" ~/.memories/.env
+        sed -i '' "s/API_AUTH_TOKEN=/API_AUTH_TOKEN=$auth_token/" ~/.recall/.env 2>/dev/null || \
+            sed -i "s/API_AUTH_TOKEN=/API_AUTH_TOKEN=$auth_token/" ~/.recall/.env
     fi
 
-    echo "  Created ~/.memories/.env"
+    echo "  Created ~/.recall/.env"
 fi
 
 echo ""

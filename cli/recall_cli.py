@@ -4,6 +4,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -12,6 +14,8 @@ import httpx
 import typer
 from rich.console import Console
 from rich.table import Table
+
+from memory_api.config import RECALL_DIR
 
 app = typer.Typer(name="recall", help="Personal semantic memory CLI")
 console = Console()
@@ -49,9 +53,129 @@ def _handle_error(resp: httpx.Response, api_url: str) -> None:
 def _connection_error(url: str) -> None:
     console.print(
         f"[red]Cannot reach recall service at {url}.[/red]\n"
-        f"Try: [bold]make serve[/bold] (from your recall project directory)"
+        f"Try: [bold]recall serve[/bold]"
     )
     raise typer.Exit(1)
+
+
+_DEFAULT_ENV = """\
+QDRANT_HOST=localhost
+QDRANT_PORT=6333
+COLLECTION_NAME=memories
+
+OLLAMA_BASE_URL=http://localhost:11434
+EMBED_MODEL=nomic-embed-text
+
+API_HOST=127.0.0.1
+API_PORT={port}
+API_AUTH_TOKEN={token}
+"""
+
+
+def _ensure_qdrant_container() -> None:
+    """Start Qdrant container if Docker is available; skip gracefully if not."""
+    if not shutil.which("docker"):
+        console.print("[yellow]Docker not found — skipping Qdrant container setup.[/yellow]")
+        return
+
+    try:
+        result = subprocess.run(
+            ["docker", "inspect", "--format", "{{.State.Status}}", "qdrant"],
+            capture_output=True, text=True,
+        )
+        state = result.stdout.strip()
+        if state == "running":
+            console.print("[green]Qdrant container already running.[/green]")
+            return
+        if state in ("exited", "created", "paused"):
+            console.print("Starting existing Qdrant container...")
+            subprocess.run(["docker", "start", "qdrant"], check=True)
+            console.print("[green]Qdrant container started.[/green]")
+            return
+    except subprocess.CalledProcessError:
+        pass  # container doesn't exist — create it below
+
+    console.print("Creating and starting Qdrant container...")
+    subprocess.run(
+        [
+            "docker", "run", "-d", "--name", "qdrant",
+            "-p", "127.0.0.1:6333:6333",
+            "-p", "127.0.0.1:6334:6334",
+            "-v", "qdrant_data:/qdrant/storage",
+            "qdrant/qdrant:v1.13.2",
+        ],
+        check=True,
+    )
+    console.print("[green]Qdrant container created and started.[/green]")
+
+
+@app.command()
+def init() -> None:
+    """Set up ~/.recall/ config directory, check deps, and start Qdrant."""
+    # 1. Create config directory
+    RECALL_DIR.mkdir(parents=True, exist_ok=True)
+    console.print(f"[green]Config directory:[/green] {RECALL_DIR}")
+
+    # 2. Write default .env (prompt for values only when creating fresh)
+    env_file = RECALL_DIR / ".env"
+    if env_file.exists():
+        console.print(f"[dim]{env_file} already exists, skipping.[/dim]")
+    else:
+        port = typer.prompt("API port", default="8100")
+        token = typer.prompt("API auth token (leave empty for no auth)", default="")
+        env_file.write_text(_DEFAULT_ENV.format(port=port, token=token), encoding="utf-8")
+        console.print(f"[green]Created[/green] {env_file}")
+
+    # 3. Check Ollama
+    console.print("")
+    if shutil.which("ollama"):
+        console.print("Ollama found. Pulling nomic-embed-text...")
+        result = subprocess.run(["ollama", "pull", "nomic-embed-text"])
+        if result.returncode != 0:
+            console.print("[yellow]Warning: could not pull model. Make sure Ollama is running.[/yellow]")
+    else:
+        console.print("[yellow]Ollama not found. Install it: brew install ollama[/yellow]")
+        console.print("[yellow]Then run: ollama pull nomic-embed-text[/yellow]")
+
+    # 4. Check Docker + start Qdrant
+    console.print("")
+    try:
+        subprocess.run(["docker", "info"], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        console.print("[yellow]Docker daemon not running or Docker not installed. Start Docker Desktop first.[/yellow]")
+        console.print("\n[green]Setup complete![/green] Start Qdrant and the API when Docker is ready:")
+        console.print("  [bold]recall serve[/bold]")
+        return
+
+    _ensure_qdrant_container()
+
+    console.print("")
+    console.print("[green]Setup complete![/green] Start the API server with:")
+    console.print("  [bold]recall serve[/bold]")
+
+
+@app.command()
+def serve(
+    host: Optional[str] = typer.Option(None, "--host", help="Bind host (default: from settings)"),
+    port: Optional[int] = typer.Option(None, "--port", "-p", help="Bind port (default: from settings)"),
+    no_qdrant: bool = typer.Option(False, "--no-qdrant", help="Skip starting Qdrant container"),
+) -> None:
+    """Start the recall API server (and Qdrant if Docker is available)."""
+    if not no_qdrant:
+        try:
+            subprocess.run(["docker", "info"], capture_output=True, check=True)
+            _ensure_qdrant_container()
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            console.print("[yellow]Docker not available — skipping Qdrant container.[/yellow]")
+
+    # Lazy import so that Settings are only parsed when `serve` is called
+    from memory_api.config import settings  # noqa: PLC0415
+    import uvicorn  # noqa: PLC0415
+
+    bind_host = host or settings.api_host
+    bind_port = port or settings.api_port
+    console.print(f"Starting recall API on [bold]http://{bind_host}:{bind_port}[/bold]")
+    uvicorn.run("memory_api.main:app", host=bind_host, port=bind_port)
 
 
 def _is_tty() -> bool:

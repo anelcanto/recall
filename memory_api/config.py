@@ -3,9 +3,11 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+RECALL_DIR = Path.home() / ".recall"
+
 _env_file = os.environ.get(
     "RECALL_ENV_FILE",
-    str(Path.home() / ".memories" / ".env"),
+    str(RECALL_DIR / ".env"),
 )
 
 

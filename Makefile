@@ -32,8 +32,8 @@ status:
 	@curl -sf http://127.0.0.1:8100/health | python3 -m json.tool || echo "API not running"
 
 install:
-	@mkdir -p ~/.memories
-	@test -f ~/.memories/.env || cp .env.example ~/.memories/.env
+	@mkdir -p ~/.recall
+	@test -f ~/.recall/.env || cp .env.example ~/.recall/.env
 	uv sync
 	@echo ""
 	@echo "Installed. Run 'make dev' to start Qdrant + API server."

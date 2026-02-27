@@ -42,9 +42,11 @@ make install
 ## Quick start
 
 ```bash
-# Start services
-make up        # Start Qdrant in Docker
-make serve     # Start API server (keep this running)
+# One-time setup (creates ~/.recall/.env, starts Qdrant)
+recall init
+
+# Start the API server (in a terminal, keep it running)
+recall serve
 
 # In another terminal
 recall add "The quick brown fox" --tag test
@@ -56,6 +58,8 @@ recall status
 ## CLI
 
 ```
+recall init                                                       # Set up config + start Qdrant
+recall serve [--host 127.0.0.1] [--port 8100] [--no-qdrant]     # Start API server
 recall add "text" --tag work --source cli [--dedupe-key "..."]
 recall search "query" --top-k 10 [--no-text] [--output table|json]
 recall ingest <file> [--format lines|jsonl] [--source name] [--auto-dedupe]
@@ -86,7 +90,7 @@ recall CLI  -->  FastAPI server (:8100)  -->  Qdrant (Docker :6333)
 - **Ollama** generates embeddings locally using `nomic-embed-text`
 - **CLI** talks to the API over HTTP
 
-User config lives in `~/.memories/.env`. Qdrant data persists in a Docker volume.
+User config lives in `~/.recall/.env`. Qdrant data persists in a Docker volume.
 
 ## API endpoints
 
