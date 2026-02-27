@@ -1,4 +1,4 @@
-.PHONY: up down serve dev test test-integration test-degraded test-all status install
+.PHONY: up down serve dev test test-integration test-degraded test-all status install release-patch release-minor release-major
 
 up:
 	docker run -d --name qdrant \
@@ -38,3 +38,16 @@ install:
 	@echo ""
 	@echo "Installed. Run 'make dev' to start Qdrant + API server."
 	@echo "CLI available via: uv run recall --help"
+
+# Release targets — bumps version, commits, tags, then push to trigger CI → PyPI
+release-patch:
+	uv run bump-my-version bump patch
+	git push origin main --tags
+
+release-minor:
+	uv run bump-my-version bump minor
+	git push origin main --tags
+
+release-major:
+	uv run bump-my-version bump major
+	git push origin main --tags
