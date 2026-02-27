@@ -15,7 +15,7 @@
         "repo": "anelcanto/recall"
       },
       "description": "Personal semantic memory for Claude — store, search, and recall information across sessions",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "author": {
         "name": "Anel Canto",
         "email": "contact@anelcanto.com"
