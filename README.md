@@ -178,7 +178,11 @@ Once connected, just talk to Claude naturally:
 From the terminal:
 
 ```bash
-claude plugin update recall
+# Refresh the marketplace index first
+claude plugin marketplace update recall
+
+# Then update the plugin
+claude plugin update recall@recall
 ```
 
 Or from inside Claude Code, use the `/recall:update` command to check for a newer version on PyPI and upgrade.
