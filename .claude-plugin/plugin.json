@@ -1,6 +1,6 @@
 {
   "name": "recall",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Personal semantic memory for Claude — store, search, and recall information across sessions",
   "author": {
     "name": "Anel Canto",
