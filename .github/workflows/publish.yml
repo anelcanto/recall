@@ -39,6 +39,19 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Validate tag matches package version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(python3 -c "
+          import tomllib, pathlib
+          d = tomllib.loads(pathlib.Path('pyproject.toml').read_text())
+          print(d['project']['version'])
+          ")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match pyproject.toml version ($PKG_VERSION)"
+            exit 1
+          fi
+
       - name: Build package
         run: uv build
 
@@ -47,11 +60,12 @@ jobs:
         # No --token needed — uses OIDC Trusted Publisher
 
       - name: Notify Homebrew tap
+        continue-on-error: true
         env:
           TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
           VERSION: ${{ github.ref_name }}
         run: |
-          curl -X POST \
+          curl --fail -X POST \
             -H "Authorization: Bearer $TAP_REPO_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/json" \

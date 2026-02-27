@@ -1,4 +1,4 @@
-.PHONY: up down serve dev test test-integration test-degraded test-all status install release-patch release-minor release-major
+.PHONY: up down serve dev test test-integration test-degraded test-all status install hooks _release-preflight release-patch release-minor release-major
 
 up:
 	docker run -d --name qdrant \
@@ -17,7 +17,10 @@ dev:
 	$(MAKE) up && $(MAKE) serve
 
 test:
-	uv run pytest tests/test_unit.py -v
+	uv run pytest tests/test_unit.py tests/test_cli.py tests/test_mcp.py tests/test_embeddings.py -v
+
+hooks:
+	uv run pre-commit install
 
 test-integration:
 	uv run pytest tests/test_integration.py -v
@@ -40,14 +43,23 @@ install:
 	@echo "CLI available via: uv run recall --help"
 
 # Release targets — bumps version, commits, tags, then push to trigger CI → PyPI
-release-patch:
+_release-preflight:
+	@if [ "$$(git branch --show-current)" != "main" ]; then \
+		echo "Error: must be on main branch to release"; exit 1; fi
+	@if ! git diff --quiet || ! git diff --cached --quiet; then \
+		echo "Error: working tree is not clean"; exit 1; fi
+	@git fetch origin main --quiet
+	@if [ "$$(git rev-parse main)" != "$$(git rev-parse origin/main)" ]; then \
+		echo "Error: local main is behind origin — run git pull first"; exit 1; fi
+
+release-patch: _release-preflight
 	uv run bump-my-version bump patch
-	git push origin main --tags
+	git push origin main $$(git describe --tags --abbrev=0)
 
-release-minor:
+release-minor: _release-preflight
 	uv run bump-my-version bump minor
-	git push origin main --tags
+	git push origin main $$(git describe --tags --abbrev=0)
 
-release-major:
+release-major: _release-preflight
 	uv run bump-my-version bump major
-	git push origin main --tags
+	git push origin main $$(git describe --tags --abbrev=0)

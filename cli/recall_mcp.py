@@ -15,13 +15,7 @@ from typing import Optional
 
 import httpx
 from dotenv import load_dotenv
-from importlib.metadata import version as _pkg_version, PackageNotFoundError
 from mcp.server.fastmcp import FastMCP
-
-try:
-    _VERSION = _pkg_version("recall-cli")
-except PackageNotFoundError:
-    _VERSION = "0.0.0"  # running from source without install
 
 # ---------------------------------------------------------------------------
 # Config
@@ -52,7 +46,6 @@ def _client() -> httpx.Client:
 
 mcp = FastMCP(
     "recall",
-    version=_VERSION,
     instructions=(
         "Use these tools to persist and retrieve memories across Claude sessions. "
         "Search before answering questions about the user's projects or preferences. "

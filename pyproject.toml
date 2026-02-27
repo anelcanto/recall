@@ -83,4 +83,5 @@ dev = [
     "pytest-asyncio",
     "httpx",
     "bump-my-version",
+    "pre-commit",
 ]
