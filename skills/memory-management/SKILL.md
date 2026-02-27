@@ -55,6 +55,20 @@ Use `dedupe_key` when the memory represents a single updatable fact (e.g. a pref
 - Use `delete_memory(id)` when the user says "forget that" or asks to remove a specific memory
 - Use `check_health()` to diagnose connectivity issues with the recall service
 
+## How to call MCP tools
+
+Always call recall MCP tools **directly** in the main conversation — never via the Task tool or a subagent. Wrapping MCP calls in a subagent causes multiple authorization prompts; calling them directly causes at most one.
+
+Correct:
+```
+list_memories()   ← called directly as an MCP tool
+```
+
+Incorrect:
+```
+Task(subagent_type="general-purpose", prompt="call list_memories()")  ← causes extra auth prompts
+```
+
 ## Transparency
 
 When you use a memory tool, briefly mention it:
