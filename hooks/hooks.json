@@ -1,0 +1,29 @@
+{
+  "description": "Recall session lifecycle hooks",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Review this conversation for information worth persisting to long-term memory via the recall MCP tools (store_memory). Look for: user preferences, project decisions, architecture choices, debugging insights, workflow patterns, or personal facts the user shared. Ignore: trivial exchanges, greetings, info already in code/docs. If you find 1+ items worth saving, return 'block' with a reason listing each memory to store. If nothing worth saving, return 'approve'.",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
