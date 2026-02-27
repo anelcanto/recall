@@ -20,7 +20,9 @@ from memory_api.embeddings import EmbeddingUnavailable, OllamaClient
 
 logger = logging.getLogger(__name__)
 
-APP_NAMESPACE = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")  # DNS namespace reused as stable app UUID
+APP_NAMESPACE = uuid.UUID(
+    "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+)  # DNS namespace reused as stable app UUID
 
 
 class QdrantConnectionError(Exception):
@@ -129,8 +131,6 @@ class MemoryStore:
                 ),
                 on_disk_payload=False,
             )
-            # Store model metadata as collection description (via update)
-            description = f"model={self._embedder._model} dim={dim}"
             await self._client.update_collection(
                 collection_name=self._collection_name,
                 optimizers_config=qmodels.OptimizersConfigDiff(),
@@ -227,7 +227,9 @@ class MemoryStore:
         try:
             current_dim = await self._embedder.probe_dimension()
         except EmbeddingUnavailable:
-            logger.warning("Cannot probe Ollama dimension for model validation. Skipping validation.")
+            logger.warning(
+                "Cannot probe Ollama dimension for model validation. Skipping validation."
+            )
             return
 
         if stored_model != current_model or stored_dim != current_dim:
@@ -309,9 +311,7 @@ class MemoryStore:
 
         return point_id, "deduped"
 
-    async def _upsert_point(
-        self, point_id: str, vector: list[float], payload: dict
-    ) -> None:
+    async def _upsert_point(self, point_id: str, vector: list[float], payload: dict) -> None:
         assert self._client is not None
         try:
             await self._client.upsert(

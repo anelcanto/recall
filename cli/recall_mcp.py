@@ -7,6 +7,7 @@ Config resolution (in priority order):
   2. ~/.recall/.env file (loaded via python-dotenv)
   3. Defaults: http://127.0.0.1:8100, no token
 """
+
 from __future__ import annotations
 
 import os
@@ -152,8 +153,10 @@ def check_health() -> dict:
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     import sys
+
     if "--http" in sys.argv:
         port = int(os.environ.get("RECALL_MCP_PORT", "8001"))
         mcp.run(transport="http", port=port)

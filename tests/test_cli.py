@@ -1,15 +1,14 @@
 """Unit tests for recall CLI commands (no services required)."""
+
 from __future__ import annotations
 
 import json
-import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import httpx
-import pytest
 from typer.testing import CliRunner
 
-from cli.recall_cli import app, _build_headers, _get_api_url
+from cli.recall_cli import _build_headers, _get_api_url, app
 
 runner = CliRunner()
 
@@ -48,7 +47,9 @@ class TestAdd:
     def test_add_success(self):
         fake_resp = make_response(200, {"id": "abc-123", "id_strategy": "uuid"})
         with patch("httpx.post", return_value=fake_resp):
-            result = runner.invoke(app, ["add", "Hello world", "--api-url", "http://localhost:8100"])
+            result = runner.invoke(
+                app, ["add", "Hello world", "--api-url", "http://localhost:8100"]
+            )
         assert result.exit_code == 0
         assert "Stored" in result.output
         assert "abc-123" in result.output
@@ -162,7 +163,15 @@ class TestList:
         with patch("httpx.get", return_value=fake_resp) as mock_get:
             runner.invoke(
                 app,
-                ["list", "--cursor", "abc123", "--output", "table", "--api-url", "http://localhost:8100"],
+                [
+                    "list",
+                    "--cursor",
+                    "abc123",
+                    "--output",
+                    "table",
+                    "--api-url",
+                    "http://localhost:8100",
+                ],
             )
         call_kwargs = mock_get.call_args[1]
         assert "cursor" in call_kwargs.get("params", {})

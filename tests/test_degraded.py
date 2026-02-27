@@ -1,11 +1,11 @@
 """Degraded tests — Qdrant running, Ollama stopped."""
+
 from __future__ import annotations
 
 import uuid
 
 import pytest
 from starlette.testclient import TestClient
-
 
 QDRANT_HOST = "localhost"
 QDRANT_PORT = 6333

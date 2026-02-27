@@ -1,4 +1,4 @@
-.PHONY: up down serve dev test test-integration test-degraded test-all status install hooks _release-preflight release-patch release-minor release-major
+.PHONY: up down serve dev test test-integration test-degraded test-all lint status install hooks _release-preflight release-patch release-minor release-major
 
 up:
 	docker run -d --name qdrant \
@@ -18,6 +18,10 @@ dev:
 
 test:
 	uv run pytest tests/test_unit.py tests/test_cli.py tests/test_mcp.py tests/test_embeddings.py -v
+
+lint:
+	uv run ruff check .
+	uv run ruff format --check .
 
 hooks:
 	uv run pre-commit install

@@ -45,7 +45,9 @@ class OllamaClient:
                 return data["embedding"]
             raise EmbeddingUnavailable(f"Unexpected Ollama response shape: {list(data.keys())}")
         except httpx.HTTPStatusError as e:
-            raise EmbeddingUnavailable(f"Ollama HTTP error {e.response.status_code}: {e.response.text}") from e
+            raise EmbeddingUnavailable(
+                f"Ollama HTTP error {e.response.status_code}: {e.response.text}"
+            ) from e
         except httpx.RequestError as e:
             raise EmbeddingUnavailable(f"Cannot reach Ollama at {self._base_url}: {e}") from e
 
@@ -58,7 +60,9 @@ class OllamaClient:
 
         # Auto-detect: try configured path first, then fallback
         paths = [self._default_embed_path]
-        fallback = "/api/embeddings" if self._default_embed_path != "/api/embeddings" else "/api/embed"
+        fallback = (
+            "/api/embeddings" if self._default_embed_path != "/api/embeddings" else "/api/embed"
+        )
         paths.append(fallback)
 
         last_error: Optional[Exception] = None

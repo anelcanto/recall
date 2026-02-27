@@ -1,6 +1,20 @@
 repos:
   - repo: local
     hooks:
+      - id: ruff-check
+        name: lint (ruff check)
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: ruff-format
+        name: format (ruff format)
+        entry: uv run ruff format
+        language: system
+        types: [python]
+        pass_filenames: false
+
       - id: unit-tests
         name: unit tests
         entry: uv run pytest tests/test_unit.py tests/test_cli.py tests/test_mcp.py tests/test_embeddings.py -q --tb=short

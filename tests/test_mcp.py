@@ -1,4 +1,5 @@
 """Unit tests for recall MCP tools (no services required)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
