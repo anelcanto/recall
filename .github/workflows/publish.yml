@@ -63,12 +63,8 @@ jobs:
       - name: Notify Homebrew tap
         continue-on-error: true
         env:
-          TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
-          VERSION: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
         run: |
-          curl --fail -X POST \
-            -H "Authorization: Bearer $TAP_REPO_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Content-Type: application/json" \
-            https://api.github.com/repos/anelcanto/homebrew-recall-cli/dispatches \
-            -d "{\"event_type\": \"new-release\", \"client_payload\": {\"version\": \"$VERSION\"}}"
+          gh api repos/anelcanto/homebrew-recall-cli/dispatches \
+            -f event_type=new-release \
+            -f "client_payload[version]=${GITHUB_REF_NAME#v}"
