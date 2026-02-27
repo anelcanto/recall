@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write  # needed to dispatch publish.yml
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_PAT }}
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -48,8 +48,16 @@ jobs:
 
       - name: Bump version, tag, and push
         if: steps.bump.outputs.bump != ''
+        id: tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           uv run bump-my-version bump ${{ steps.bump.outputs.bump }}
           git push origin main --follow-tags
+          echo "new_tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger publish workflow
+        if: steps.tag.outputs.new_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish.yml --ref ${{ steps.tag.outputs.new_tag }}

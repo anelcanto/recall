@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:  # triggered by release.yml after auto-bump
 
 jobs:
   test:
