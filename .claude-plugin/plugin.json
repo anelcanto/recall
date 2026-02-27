@@ -1,0 +1,10 @@
+{
+  "name": "recall",
+  "version": "0.2.0",
+  "description": "Personal semantic memory for Claude — store, search, and recall information across sessions",
+  "author": {
+    "name": "Anel Canto",
+    "email": "contact@anelcanto.com"
+  },
+  "repository": "https://github.com/anelcanto/recall"
+}

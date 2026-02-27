@@ -1,6 +1,6 @@
 [project]
 name = "recall-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "A personal semantic memory system — store, search, and manage memories locally with vector embeddings"
 readme = "README.md"
 license = {text = "MIT"}
@@ -29,6 +29,7 @@ dependencies = [
     "rich",
     "pydantic-settings",
     "python-dotenv",
+    "mcp[cli]",
 ]
 
 [project.urls]
@@ -38,6 +39,7 @@ Issues = "https://github.com/anelcanto/recall/issues"
 
 [project.scripts]
 recall = "cli.recall_cli:app"
+recall-mcp = "cli.recall_mcp:main"
 
 [tool.uv]
 package = true
